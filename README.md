@@ -63,7 +63,7 @@ _注意：使用mybatis-plus可以节省大量代码，不要同时导入mybatis
 
 #### 3. 使用mybatis-plus
 
-- 在启动类加上**@mapper**注解,扫描**mapper**文件夹
+- 在启动类加上@mapper注解,扫描mapper文件夹
 
 ```
 @MapperScan("com.yang.springmybatisplus.mapper")
@@ -95,7 +95,7 @@ public interface UserMapper extends BaseMapper<User> {
 
 mybatis-plus已经配置完成，可以直接使用，CRUD
 
-- 使用测试类**@Test**测试
+- 使用测试类@Test测试
 
 ```
 @Autowired
@@ -114,3 +114,191 @@ void contextLoads() {
 运行contextLoads, 查看结果
 
 ![结果1](./docs/1.jpg)
+
+## 日志配置
+
+- 使用yml添加日志配置项
+
+```
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+```
+
+执行上面的查询所有用户的方法查看日志
+
+![结果2](./docs/2.jpg)
+
+## 插入测试
+
+- 主键自增策略
+
+```
+@TableId(type = IdType.AUTO)
+private Long id;
+```
+
+- 插入测试
+
+```
+//测试插入
+@Test
+public void testInsert(){
+    User user = new User();
+    user.setName("小蒋");
+    user.setAge(3);
+    user.setEmail("2474950959@qq.com");
+    //没有设置ID却自动生成的ID
+    int result = userMapper.insert(user);
+    System.out.println("result = " + result);
+    System.out.println("user = " + user);
+}
+```
+
+查看日志
+
+![结果3](./docs/3.jpg)
+
+- 其他策略
+
+```
+public enum IdType {
+    /**
+     * 数据库ID自增
+     * <p>该类型请确保数据库设置了 ID自增 否则无效</p>
+     */
+    AUTO(0),
+    /**
+     * 该类型为未设置主键类型(注解里等于跟随全局,全局里约等于 INPUT)
+     */
+    NONE(1),
+    /**
+     * 用户输入ID
+     * <p>该类型可以通过自己注册自动填充插件进行填充</p>
+     */
+    INPUT(2),
+
+    /* 以下3种类型、只有当插入对象ID 为空，才自动填充。 */
+    /**
+     * 分配ID (主键类型为number或string）,
+     * 默认实现类 {@link com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator}(雪花算法)
+     *
+     * @since 3.3.0
+     */
+    ASSIGN_ID(3),
+    /**
+     * 分配UUID (主键类型为 string)
+     * 默认实现类 {@link com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator}(UUID.replace("-",""))
+     */
+    ASSIGN_UUID(4);
+
+    private final int key;
+
+    IdType(int key) {
+        this.key = key;
+    }
+}
+```
+
+## 更新测试
+
+- 更新
+
+```
+//更新测试
+@Test
+public void testUpdateByID() {
+    User user = new User();
+    user.setId(6L);
+    user.setName("小小");
+    user.setAge(18);//这一行后加
+    int i = userMapper.updateById(user);//受影响的行数,参数是一个user不是id,点击看源码
+    System.out.println("i = " + i);
+}
+```
+
+查看日志
+
+![结果4](./docs/4.jpg)
+
+#### 自动填充 (创建时间、更新时间)
+
+- 在实体类的成员变量上添加注解@TableField
+
+```
+//字段添加填充内容
+@TableField(fill = FieldFill.INSERT ,value = "create_time")
+private LocalDateTime createTime;
+@TableField(fill = FieldFill.INSERT_UPDATE ,value = "update_time")
+private LocalDateTime updateTime;
+```
+
+- 编写处理器来处理这个注解
+
+```
+@Slf4j
+@Component
+public class MyMetaObjectHandler implements MetaObjectHandler {
+    //插入时启动  第三个参数 LocalDateTime 一定要和 createTime成员变量的值的类型一致，不然是null 如果是date就都设置date
+    @Override
+    public void insertFill(MetaObject metaObject) {
+        log.info("start insert fill ....");
+        this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now()); // 起始版本 3.3.0(推荐使用)
+        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now()); // 起始版本 3.3.0(推荐)
+    }
+
+    //更新时候启动
+    @Override
+    public void updateFill(MetaObject metaObject) {
+        log.info("start update fill ....");
+        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now()); // 起始版本 3.3.0(推荐)
+    }
+}
+```
+
+- 执行上面插入代码
+
+![结果5](./docs/5.jpg)
+
+## 分页查询
+
+- 配置拦截器
+
+```
+@Component
+public class MybatisPlusConfig {
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
+        mybatisPlusInterceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());//创建乐观锁拦截器 OptimisticLockerInnerInterceptor
+        mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL)); //插件分页拦截器，我的是mysql
+        return mybatisPlusInterceptor;
+    }
+}
+```
+
+- 使用page对象即可
+
+```
+//测试分页查询
+@Test
+public void testPage() {
+    Page<User> page = new Page<>(1,5); //开启拦截器后，会注册一个page对象  当前页，每页条数
+    //方法源码：   <P extends IPage<T>> P selectPage(P page, @Param(Constants.WRAPPER) Wrapper<T> queryWrapper);
+    userMapper.selectPage(page,null); //分页查询
+    page.getRecords().forEach(System.out::println); //获取分页后的数据 打印
+    System.out.println(page.getTotal()); //获取记录总数
+}
+```
+
+![结果6](./docs/6.jpg)
+
+## 其他
+
+略, 如果需要深入使用时，查看参考链接
+
+- 乐观锁
+- 删除测试
+- 性能分析插件
+- 条件构造器wrapper(重点)
+- 代码自动生成器(重点)

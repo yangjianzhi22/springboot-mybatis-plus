@@ -1,6 +1,10 @@
 server:
   port: 8003
 
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 # 数据库
 spring:
   datasource:
