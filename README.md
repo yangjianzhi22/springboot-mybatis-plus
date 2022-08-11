@@ -1,6 +1,6 @@
 # springboot-mybatis-plus
 
-springboot 整合 mybatis-plus 应用
+springboot+mybatis-plus整合应用
 
 > 参考: [https://blog.csdn.net/CodeInCoke/article/details/121030290](https://blog.csdn.net/CodeInCoke/article/details/121030290)
 
