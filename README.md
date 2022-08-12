@@ -115,7 +115,9 @@ void contextLoads() {
 
 ![结果1](./docs/1.jpg)
 
-## 日志配置
+## 场景
+
+### 1. 日志配置
 
 - 使用yml添加日志配置项
 
@@ -129,7 +131,7 @@ mybatis-plus:
 
 ![结果2](./docs/2.jpg)
 
-## 插入测试
+### 2. 插入自增策略
 
 - 主键自增策略
 
@@ -200,28 +202,7 @@ public enum IdType {
 }
 ```
 
-## 更新测试
-
-- 更新
-
-```
-//更新测试
-@Test
-public void testUpdateByID() {
-    User user = new User();
-    user.setId(6L);
-    user.setName("小小");
-    user.setAge(18);//这一行后加
-    int i = userMapper.updateById(user);//受影响的行数,参数是一个user不是id,点击看源码
-    System.out.println("i = " + i);
-}
-```
-
-查看日志
-
-![结果4](./docs/4.jpg)
-
-#### 自动填充 (创建时间、更新时间)
+### 3. 自动填充 (创建时间、更新时间)
 
 - 在实体类的成员变量上添加注解@TableField
 
@@ -260,7 +241,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
 ![结果5](./docs/5.jpg)
 
-## 分页查询
+### 4. 分页查询
 
 - 配置拦截器
 
