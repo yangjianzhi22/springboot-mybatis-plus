@@ -23,7 +23,7 @@ MyBatis-Plus (opens new window)（简称 MP）是一个 MyBatis (opens new windo
 - **内置性能分析插件**：可输出 SQL 语句以及其执行时间，建议开发测试时启用该功能，能快速揪出慢查询
 - **内置全局拦截插件**：提供全表 delete 、 update 操作智能分析阻断，也可自定义拦截规则，预防误操作
 
-## 快速入门
+## [快速入门](/mybatis-plus-quickstart)
 
 #### 1. 创建数据库&表
 
@@ -113,11 +113,11 @@ void contextLoads() {
 
 运行contextLoads, 查看结果
 
-![结果1](./docs/1.jpg)
+![结果1](/docs/1.jpg)
 
 ## 场景
 
-### 1. 日志配置
+### 1. [日志配置](/mybatis-plus-log)
 
 - 使用yml添加日志配置项
 
@@ -129,9 +129,9 @@ mybatis-plus:
 
 执行上面的查询所有用户的方法查看日志
 
-![结果2](./docs/2.jpg)
+![结果2](/docs/2.jpg)
 
-### 2. 插入自增策略
+### 2. [插入自增策略](/mybatis-plus-auto)
 
 - 主键自增策略
 
@@ -159,7 +159,7 @@ public void testInsert(){
 
 查看日志
 
-![结果3](./docs/3.jpg)
+![结果3](/docs/3.jpg)
 
 - 其他策略
 
@@ -202,7 +202,7 @@ public enum IdType {
 }
 ```
 
-### 3. 自动填充 (创建时间、更新时间)
+### 3. [自动填充 (创建时间、更新时间)](/mybatis-plus-fill)
 
 - 在实体类的成员变量上添加注解@TableField
 
@@ -239,9 +239,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
 - 执行上面插入代码
 
-![结果5](./docs/5.jpg)
+![结果5](/docs/5.jpg)
 
-### 4. 分页查询
+### 4. [分页查询](/mybatis-plus-page)
 
 - 配置拦截器
 
@@ -272,7 +272,7 @@ public void testPage() {
 }
 ```
 
-![结果6](./docs/6.jpg)
+![结果6](/docs/6.jpg)
 
 ## 其他
 
